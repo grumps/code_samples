@@ -1,0 +1,165 @@
+/** 
+* Max Resnick 2015 PDX Code Guild bootcamp
+*/
+
+/* Our lovely fonts */
+
+@import url(http://fonts.googleapis.com/css?family=Nova+Square);
+
+
+/* overide browser defaults */
+* {
+    font-family: 'Sans serif';
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* overide some nasty browser defaults */
+
+h1, h2, h3 {
+    font-family: 'Nova Square', cursive;
+}
+
+/* body and wrapper */
+
+body {
+    margin: 0px;
+    background-color: #eeeeee;
+}
+
+.page-wrapper {
+    margin-left: 14.5%;
+    margin-right: 14.5%;
+    margin-top: 7.8%;
+    margin-bottom: 6.5em;
+}
+
+.intro h1 {
+    color: #e23045;
+    font-size: 2.25em;
+    margin-bottom: .75em;
+}
+
+.intro h2 {
+    color: #fff6e0;
+    display: block;
+    background-color: #e23045;
+    padding: .5em .75em;
+    font-size: 1.125em;
+    border-radius: .16em;
+}
+
+.intro article {
+    background-color: #1b4549;
+    color: #fff6e0;
+    padding: 1em .75em;
+    border-radius: .16em;
+    margin-bottom: 4em;
+    box-shadow: 1.875em 2.5em 0 0 #7ab3b0;
+}
+
+/**
+* main container
+*/
+
+main {
+    display: inline-block;
+    max-width: 29.25em;
+    min-width: 8.35em;
+}
+
+main article {
+    background-color: #fff6e0;
+    padding: .5em .75em;
+    border-radius: .16em;
+    margin-bottom: .625em;
+    border: 1px solid #333333;
+    box-shadow: 1.875em 2.5em 0 0 #7ab3b0;
+}
+
+main article a {
+    color: #e23045;
+}
+
+article ~ article {
+    margin-bottom: 3.125em;
+}
+
+/**
+* Right sidebar
+*/
+
+aside {
+    display: inline-block;
+    width: 30%;
+    vertical-align: top;
+    margin-top: .3125em;
+    margin-left: 4em;
+}
+aside  h3 {
+    display: none;
+}
+
+aside ul {
+    list-style: none;
+    min-width: 13.5em;
+    margin-top: 0px;
+    padding-left: 0px;
+}
+
+aside li {
+    background-color: #e23045;
+    margin-bottom: .3125em;
+    display: block;
+    text-align: center;
+    padding: .25em 0px;
+    margin-top: 0px;
+    box-shadow: .625em 1em 0 0 #f59581;
+}
+
+li a {
+    color: #fff6e0;
+}
+
+/**
+* Footer styles
+*/
+
+main footer {
+    font-weight: 700;
+    display: block;
+    text-align: right;
+    margin-bottom: 2em;
+}
+main footer a {
+    display: inline-block;
+    color: #fff6e0;
+    background-color: #908673;
+    text-align: center;
+    padding: .5em .5em;
+    border-radius: .16em;
+    box-shadow: .625em 1em 0 0 #d8cfbc;
+}
+
+/**
+* media queries
+*/
+
+@media screen and (max-width: 1097px) {
+    main {
+        min-width: 100%;
+    }
+
+    aside {
+        width: 97%
+        margin: 0 auto;
+        display: block;
+    }
+
+    main footer {
+        text-align: center;
+    }
+}
