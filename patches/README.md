@@ -1,7 +1,7 @@
 # Patches
 
 * [Chiliproject - Rubyish](https://github.com/chiliproject/chiliproject/compare/master...grumps:1369_port_rdm_mailhandler)
-
+    ```
     @@ -65,8 +65,7 @@
      require 'net/http'
      require 'net/https'
@@ -107,4 +107,4 @@
      handler = RedmineMailHandler.new
     -exit(handler.submit(STDIN.read))
     +exit(handler.submit(STDIN.read)) 
-
+    ```
