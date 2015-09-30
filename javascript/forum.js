@@ -1,6 +1,6 @@
 /**
  * Created by Max Resnick 9/8/15
- * @description forum javascript, GET and POST to Google Docs
+ * @description: forum javascript, GET and POST to Google Docs
  */
 
 
