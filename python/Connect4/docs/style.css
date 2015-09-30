@@ -1,0 +1,23 @@
+/*
+* add link to html:
+* `sed -i s@'</head>'@'<link href="style.css" rel="stylesheet" content="text/css">\n</head>'@g *.html`
+*/
+
+body {
+    padding-top: 2em;
+    margin: 0 auto;
+    width: 80%;
+}
+a {
+    text-decoration: none;
+}
+
+dl a {
+    color: #292C2F;
+    font-size: 1.2em;
+}
+
+table {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.23), 0 3px 12px rgba(0, 0, 0, 0.16)
+}
