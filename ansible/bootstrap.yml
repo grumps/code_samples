@@ -1,0 +1,65 @@
+---
+
+- name: Change root password
+  user: >
+    name=root
+    password="lookup('password', 'credentials/' + 'root chars=ascii_letters,digits,hexdigits,punctuation')"
+
+- name: create admin users
+  user: >
+    name="{{ admin }}"
+    comment="Administrator account"
+    groups=sudo
+    state=present
+    password="lookup('password', 'credentials/' + 'admin chars=ascii_letters,digits,hexdigits,punctuation')"
+    append=yes
+
+- name: install fail2ban - iptables - sudo
+  apt: name={{ item }} state=present
+  with_items:
+    - fail2ban
+    - iptables
+    - iptables-persistent
+    - sudo
+
+- name: remove locale.gen
+  shell: locale-gen --purge en_US.UTF-8
+
+- name: configure locale_gen
+  shell: echo -e 'LANG="en_US.UTF-8"\nLANGUAGE="en_US:en"\n' > /etc/default/locale
+
+- name: ensure sudoers.d is enabled
+  lineinfile: >
+    dest=/etc/sudoers
+    regexp='^#includedir /etc/sudoers.d'
+    line='#includedir /etc/sudoers.d'
+    state=present backup=yes
+
+- name: set up password-less sudo for admin users
+  copy: >
+    content='%sudo ALL=(ALL) NOPASSWD:ALL'
+    dest=/etc/sudoers.d/admin
+    owner=root group=root mode=0440
+
+- name: deploy ssh public key 
+  authorized_key: user="{{ admin }}" key="{{ pub_key }}"
+
+- name: configure sshd
+  template: src=sshd_conf.j2 dest=/etc/ssh/sshd_config
+  notify: 
+    - reload sshd
+
+- name: add iptables template ipv4
+  template: src=iptables.j2 dest=/etc/iptables/rules.v4
+  notify: 
+    - iptables save ipv4
+
+- name: add iptables template
+  template: src=iptables.j2 dest=/etc/iptables/rules.v6
+  notify: 
+    - iptables save ipv6
+
+- name: force reloads
+  command: /bin/true
+  notify:
+    - reload sshd

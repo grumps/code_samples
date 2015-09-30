@@ -1,0 +1,100 @@
+---
+- name: checkout chiliproject repo
+  git: repo=REDACTED.git
+    ssh_opts="-o StrictHostKeyChecking=no"
+    dest=/home/{{ item.app_user }}/{{ item.name }}
+    key_file=/home/{{ item.app_user }}/.ssh/{{ item.app_user }}
+    version={{ git_version }}
+    force=yes
+    recursive=yes
+  with_items: trackers
+
+- name: set permissions
+  sudo: true
+  file: path=/home/{{ item.app_user }} recurse=yes owner={{ item.app_user }}
+  with_items: trackers
+
+- name: increase rvm timeout
+  sudo_user: "{{ item.app_user }}"
+  shell: echo "export rvm_max_time_flag=20" >> ~/.rvmrc
+  with_items: trackers
+
+- name: create rails database config
+  sudo_user: "{{ item.app_user }}"
+  template: src=database.yml.j2 dest=/home/{{ item.app_user }}/{{ item.name }}/config/database.yml owner={{ item.app_user }} group={{ item.app_user }} mode=0600
+  with_items: trackers
+
+# http://stackoverflow.com/questions/15349869/undefined-method-source-index-for-gemmodule-nomethoderror
+- name: force rubygems to 1.8 per S.O.
+  sudo_user: "{{ item.app_user }}"
+  command: '/home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} rubygems --force latest-1.8'
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+  run_once: true
+
+- name: uninstall rack version installed by unicorn.
+  sudo_user: "{{ item.app_user }}"
+  command: "/home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} do gem uninstall rack -aIx 1.5.2"
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+
+- name: install gems 
+  sudo_user: "{{ item.app_user }}"
+  command: "/home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} do bundle install --without test development"
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+  ignore_errors: yes
+
+- name: install gems 
+  sudo_user: "{{ item.app_user }}"
+  command: "/home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} do bundle install --without test development"
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+  ignore_errors: yes
+
+
+- name: add email configuration
+  sudo_user: "{{ item.app_user }}"
+  template: src=configuration.yml.j2 dest=/home/{{ item.app_user }}/{{ item.name }}/config/configuration.yml owner={{ item.app_user }} group={{ item.app_user }} mode=0600
+  with_items: trackers
+
+- name: configure unicorn
+  sudo_user: "{{ item.app_user}}"
+  template: src=unicorn.{{ env_type }}.rb.j2 dest=/home/{{ item.app_user }}/{{ item.name }}/config/unicorn.rb owner={{ item.app_user }} group={{ item.app_user }} mode=0600
+  with_items: trackers
+
+- name: rake this stuff
+  sudo_user: "{{ item.app_user }}"
+  shell: 'RAILS_ENV={{ rails_env }} /home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} do bundle exec rake generate_secret_token'
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+
+- name: migrate database
+  sudo_user: "{{ item.app_user }}"
+  shell: 'RAILS_ENV={{ rails_env }} /home/{{ item.app_user }}/.rvm/bin/rvm {{ item.name }} do bundle exec rake db:migrate'
+  args:
+    chdir: /home/{{ item.app_user }}/{{ item.name }}
+  with_items: trackers
+
+- name: start unicorn
+  sudo_user: "{{ item.app_user }}"
+  command: /etc/init.d/unicorn start {{ item.name }}
+  with_items: trackers
+  ignore_errors: yes
+  register: unicorn_status
+
+- name: get unicorn master pid
+  shell: "cat /home/{{ item.app_user }}/pid/unicorn.pid"
+  register: unicorn_pids
+  with_items: trackers
+  when: unicorn_status|failed
+
+- name: reload unicorn
+  shell: "kill -s HUP {{ item.stdout }}"
+  with_items: unicorn_pids.results
+  when: unicorn_status|failed
