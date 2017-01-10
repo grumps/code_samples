@@ -127,13 +127,13 @@ class OldDefault(OldMultiRowMixin):
 class OldDataValuableData(OldSingleRowMixin):
 
     def load(self):
-        scanner_code = self.row.get('scanner_code__id')
-        if scanner_code:
-            check_number = self.row.get(self.loc_map('check_number'))
-            business_date = datetime.datetime.strptime(self.row.get(self.loc_map('business_date')),
+        vd = self.row.get('some_valuabledata__id')
+        if vd:
+            number = self.row.get(self.loc_map('check_number'))
+            bdate = datetime.datetime.strptime(self.row.get(self.loc_map('date')),
                                                        '%m/%d/%Y')
             Datas.tasks.create_transaction.delay(
-                scanner_code, self.location.id, check_number, business_date, 'SC')
+                vd, self.location.id, number, date, 'SC')
         return self.row
 
     def __call__(self):
@@ -142,7 +142,7 @@ class OldDataValuableData(OldSingleRowMixin):
 
 class OldPaymentValuableData(OldSingleRowMixin):
     """
-    Extracts ScannerCode from a single row in a Old DataAnaylzer
+    Extracts ValuableData from a single row in a Old DataAnaylzer
     Payment Report.
     """
 
